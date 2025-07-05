@@ -53,13 +53,13 @@ export function CategoryPieChart() {
               cy="50%"
               outerRadius={80}
               fill="#8884d8"
-              label
+              label={({ name, value }) => `${name}: ₹${value.toLocaleString()}`}
             >
-              {data.map((_, index) => (
+              {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip formatter={(value, name) => [`₹${value.toLocaleString()}`, name]} />
           </PieChart>
         </ResponsiveContainer>
       </CardContent>
