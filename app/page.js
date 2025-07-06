@@ -27,8 +27,22 @@ export default function DashboardPage() {
   const [categoryBudgets, setCategoryBudgets] = useState([]); 
   const [categoryActuals, setCategoryActuals] = useState([]); 
   const [insights, setInsights] = useState([]); 
+  const [loading, setLoading] = useState(true);
+  const quotes = [
+    "A budget is telling your money where to go instead of wondering where it went. – Dave Ramsey",
+    "Do not save what is left after spending, but spend what is left after saving. – Warren Buffett",
+    "Beware of little expenses; a small leak will sink a great ship. – Benjamin Franklin",
+    "It’s not your salary that makes you rich, it’s your spending habits. – Charles A. Jaffe",
+    "The art is not in making money, but in keeping it. – Proverb",
+    "Wealth consists not in having great possessions, but in having few wants. – Epictetus",
+    "Money looks better in the bank than on your feet. – Sophia Amoruso",
+    "Financial freedom is available to those who learn about it and work for it. – Robert Kiyosaki",
+    "Do not go broke trying to look rich. – Unknown",
+    "Save money, and money will save you. – Jamaican Proverb"
+  ];
   useEffect(() => {
     async function fetchData() {
+      setLoading(true);
       const [transactionsRes, budgetsRes] = await Promise.all([
         fetch("/api/transactions"),
         fetch("/api/budgets"),
@@ -105,32 +119,42 @@ export default function DashboardPage() {
         );
       }
       setInsights(insightsArr);
+      setLoading(false);
     }
     fetchData();
   }, []);
 
   return (
     <div className="p-6 space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <SummaryCard title="Total Expenses" amount={`₹${summary.totalExpenses.toLocaleString()}`} type="expense" />
-        <SummaryCard title="Total Income" amount={`₹${summary.totalIncome.toLocaleString()}`} type="income" />
-        <SummaryCard title="Net Balance" amount={`₹${summary.netBalance.toLocaleString()}`} type="balance" />
-        <SummaryCard title={`${new Date().toLocaleString('default', { month: 'long' })} Expenses`} amount={`₹${summary.monthExpenses.toLocaleString()}`} type="month" />
-      </div>
+      {loading ? (
+        <div className="flex flex-col justify-center items-center h-96 space-y-6">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-500"></div>
+          <div className="text-center text-muted-foreground max-w-md text-sm">
+            {quotes[Math.floor(Math.random() * quotes.length)]}
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <SummaryCard title="Total Expenses" amount={`₹${summary.totalExpenses.toLocaleString()}`} type="expense" />
+            <SummaryCard title="Total Income" amount={`₹${summary.totalIncome.toLocaleString()}`} type="income" />
+            <SummaryCard title="Net Balance" amount={`₹${summary.netBalance.toLocaleString()}`} type="balance" />
+            <SummaryCard title={`${new Date().toLocaleString('default', { month: 'long' })} Expenses`} amount={`₹${summary.monthExpenses.toLocaleString()}`} type="month" />
+          </div>
 
+          <BudgetVsActualChart />
 
+          {/* Charts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <MonthlyExpensesChart />
+            <CategoryPieChart />
+          </div>
 
-      <BudgetVsActualChart />
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <MonthlyExpensesChart />
-        <CategoryPieChart />
-      </div>
-
-      {/* Recent Transactions */}
-      <RecentTransactions />
+          {/* Recent Transactions */}
+          <RecentTransactions />
+        </>
+      )}
     </div>
   );
 }
